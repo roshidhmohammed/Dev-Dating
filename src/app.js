@@ -1,26 +1,23 @@
 const express = require("express")
 
 const app =express()
-app.get('/user/:userId/:name', (req, res)=>{
-    // console.log(req.query)
-    console.log(req.params)
-    res.send({firstName:"Mohammed", lastName:"Roshidh s"})
-})
-// app.get("/user", (req,res)=>{
-//     res.send("Successfully retrieved the user")
-// })
 
-// app.post("/user", (req,res)=>{
-//     res.send("Successfully created the user")
-// })
-
-// app.delete("/user", (req,res)=>{
-//     res.send("Successully deleted the user")
-// })
-
-// app.put("/user", (req,res)=>{
-//     res.send("Successully updated the user profile")
-// })
+app.use("/user", [(req, res, next)=>{
+    console.log("printed 1st route handler")
+    next()
+    res.send("1st response")
+},
+(req, res, next)=>{
+        console.log("printed 2nd route handler")
+res.send("2nd response")
+next()
+},
+(req, res, next)=>{
+        console.log("printed 3rd route handler")
+res.send("3rd response")
+// next()
+},]
+)
 
 
 
