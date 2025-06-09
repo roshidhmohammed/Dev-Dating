@@ -21,13 +21,27 @@ const app = express();
 // )
 
 
-app.use("/admin/getAllData",adminAuth,  (req, res, next) => {
-  res.send("Retrieved all the data")
-});
+app.use("/getUserData", (req, res, next)=>{
+    throw new Error("xgjffgh")
+   res.send("user data send")
+})
 
-app.use("/admin/deleteAllData",adminAuth, (req, res, next) => {
-  res.send("Successfully deleted all the data");
-});
+app.use("/user", (req, res, next)=>{
+ try {
+      throw new Error("xgjffgh")
+//    res.send("user data send")
+ } catch (error) {
+    res.status(500).send("server is crashed")
+ }
+})
+
+app.use("/", (err, req, res, next) =>{
+    if(err) {
+        res.status(500).send("Something went wrong")
+    }
+})
+
+
 
 app.listen(8000, () => {
   console.log("Server is running on the port 8000");
