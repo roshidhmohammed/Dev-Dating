@@ -1,48 +1,31 @@
 const express = require("express");
-const { adminAuth } = require("../middlewares/auth");
+const connectDB = require("./config/database");
+const User = require("./models/user");
 
 const app = express();
 
-// app.use("/user", [(req, res, next)=>{
-//     console.log("printed 1st route handler")
-//     next()
-//     res.send("1st response")
-// },
-// (req, res, next)=>{
-//         console.log("printed 2nd route handler")
-// res.send("2nd response")
-// next()
-// },
-// (req, res, next)=>{
-//         console.log("printed 3rd route handler")
-// res.send("3rd response")
-// // next()
-// },]
-// )
-
-
-app.use("/getUserData", (req, res, next)=>{
-    throw new Error("xgjffgh")
-   res.send("user data send")
+app.post("/sign-up" ,async(req, res)=>{
+  const user = new User({
+    firstName:"Mohammed",
+    lastName:"Roshidh",
+    emailId:"roshidh@gmail.com",
+    password:"roshidh@123"
+  })
+  try {
+    await user.save()
+    res.send("User Created Successfully")
+  } catch (error) {
+    res.status(400).send("Failed to create a user")
+  }
 })
 
-app.use("/user", (req, res, next)=>{
- try {
-      throw new Error("xgjffgh")
-//    res.send("user data send")
- } catch (error) {
-    res.status(500).send("server is crashed")
- }
-})
-
-app.use("/", (err, req, res, next) =>{
-    if(err) {
-        res.status(500).send("Something went wrong")
-    }
-})
-
-
-
-app.listen(8000, () => {
-  console.log("Server is running on the port 8000");
-});
+connectDB()
+  .then(() => {
+    console.log("DB connection is established");
+    app.listen(8000, () => {
+      console.log("Server is running on the port 8000");
+    });
+  })
+  .catch(() => {
+    console.error("DB connection failed");
+  });
