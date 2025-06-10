@@ -38,6 +38,16 @@ app.get("/feed", async(req, res) =>{
   }
 })
 
+app.delete("/user", async(req, res)=>{
+  const userId = req.body.userId
+  try {
+      await User.findByIdAndDelete(userId)
+    res.send("User deleted successfully")
+  } catch (error) {
+    res.status(400).send("Something went wrong")
+  }
+})
+
 connectDB()
   .then(() => {
     console.log("DB connection is established");
