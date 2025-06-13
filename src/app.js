@@ -1,38 +1,34 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
+const { signUpValidation } = require("./utils/validation");
+const bcrypt =require("bcrypt")
 
 const app = express();
 
 app.use(express.json());
 
 app.post("/sign-up", async (req, res) => {
-  const user = new User(req.body);
-
+  
   try {
-    const ALLOWED_UPDATES = [
-      "firstName",
-      "lastName",
-      "emailId",
-      "age",
-      "password",
-      "gender",
-      "age",
-    ];
-    const isupdateAllowed = Object.keys(req.body).every((k) =>
-      ALLOWED_UPDATES.includes(k)
-    );
-    if (!isupdateAllowed) {
-      throw new Error("Update not allowed");
-    }
-    const isEmailExist = await User.findOne({ emailId: req.body.emailId });
+    signUpValidation(req)
+    const {password, firstName, lastName, emailId} = req.body
+    const hashedPassword =await bcrypt.hash(password, 1 )
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password:hashedPassword
+    });
+   
+    const isEmailExist = await User.findOne({ emailId:emailId });
     if (isEmailExist) {
       throw new Error("Email Id already exist");
     }
     await user.save();
     res.send("User Created Successfully");
   } catch (error) {
-    res.status(400).send(`Error in updating the field: ${error.message}`);
+    res.status(400).send(`Error : ${error.message}`);
   }
 });
 
