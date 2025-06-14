@@ -28,6 +28,14 @@ const validator = require("validator")
     }
 }
 
+const loginValidation = (req) =>{
+    const {emailId} = req.body
+
+    if(!validator.isEmail(emailId)) {
+        throw new Error("Invalid Login Details")
+    }
+}
 module.exports ={
-    signUpValidation
+    signUpValidation,
+    loginValidation
 }
