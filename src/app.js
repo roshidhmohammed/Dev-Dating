@@ -5,10 +5,12 @@ const { signUpValidation,
   loginValidation
  } = require("./utils/validation");
 const bcrypt =require("bcrypt")
+const cookieParser  = require("cookie-parser")
+const json =require("jsonwebtoken")
 
 const app = express();
-
 app.use(express.json());
+app.use(cookieParser())
 
 app.post("/sign-up", async (req, res) => {
   
@@ -39,7 +41,6 @@ app.post("/login", async(req, res) =>{
   try {
     const {emailId, password} = req.body
     loginValidation(req)
-    console.log("a")
     const user = await User.findOne({emailId})
     if(!user) {
       throw new Error("Invalid Login Details")
@@ -49,10 +50,33 @@ app.post("/login", async(req, res) =>{
     if(!isPasswordValid){
       throw new Error("Invalid Login Details")
     } else {
+      const token =await  json.sign({_id:user?._id}, "Roshidh123@")
+      console.log(token)
+      res.cookie("token", token)
       res.send("Login Successfull!")
     }
   } catch (error) {
     res.status(400).send('Error :' +  error);
+  }
+})
+
+app.use("/profile", async(req, res)=>{
+  try {
+    const userCookie = req.cookies
+  
+    if(userCookie){
+      const verifiedToken = await json.verify(userCookie.token,"Roshidh123@" )
+      if(verifiedToken === null){
+         throw new Error("Please Login")
+      }
+      const user = await User.findById(verifiedToken?._id)
+      res.send(user)
+    }
+  
+  
+    
+  } catch (error) {
+     res.status(400).send('Error :' +  error);
   }
 })
 
