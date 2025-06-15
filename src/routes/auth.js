@@ -10,7 +10,7 @@ authRouter.post("/sign-up", async (req, res) => {
   try {
     signUpValidation(req);
     const { password, firstName, lastName, emailId } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 1);
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       firstName,
       lastName,
@@ -52,5 +52,15 @@ authRouter.post("/login", async (req, res) => {
     res.status(400).send("Error :" + error);
   }
 });
+
+authRouter.post("/logout", async(req, res, next) =>{
+ try {
+   res.cookie("token", null, {
+    expires: new Date(),
+  }).send("Logout Successful!!!")
+ } catch (error) {
+  res.status(400).send("Error :" + error);
+ }
+})
 
 module.exports = authRouter

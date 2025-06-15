@@ -35,7 +35,24 @@ const loginValidation = (req) =>{
         throw new Error("Invalid Login Details")
     }
 }
+
+const validateEditProfileData = (req) =>{
+    const allowedDataFields = ["age", "gender", "skills"]
+
+    const isEditAllowed = Object.keys(req.body).every((fields => allowedDataFields.includes(fields)))
+    return isEditAllowed
+}
+
+const forgotPasswordValidation = (req)=>{
+    const {password} = req.body
+
+    if(!validator.isStrongPassword(password)) {
+        throw new Error("Your Password is not strong")
+    }
+}
 module.exports ={
     signUpValidation,
-    loginValidation
+    loginValidation,
+    validateEditProfileData,
+    forgotPasswordValidation
 }
