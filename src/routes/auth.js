@@ -1,0 +1,56 @@
+const express  =require("express");
+const { signUpValidation, loginValidation } = require("../utils/validation");
+const bcrypt = require("bcrypt");
+const User = require("../models/user");
+
+const authRouter = express.Router()
+
+
+authRouter.post("/sign-up", async (req, res) => {
+  try {
+    signUpValidation(req);
+    const { password, firstName, lastName, emailId } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 1);
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashedPassword,
+    });
+
+    const isEmailExist = await User.findOne({ emailId: emailId });
+    if (isEmailExist) {
+      throw new Error("Email Id already exist");
+    }
+    await user.save();
+    res.send("User Created Successfully");
+  } catch (error) {
+    res.status(400).send(`Error : ${error.message}`);
+  }
+});
+
+authRouter.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    loginValidation(req);
+    const user = await User.findOne({ emailId });
+    if (!user) {
+      throw new Error("Invalid Login Details");
+    }
+
+    const isPasswordValid =await user.validatePassword(password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid Login Details");
+    } else {
+      const token = await user.getJWT();
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 24 * 3600000),
+      });
+      res.send("Login Successfull!");
+    }
+  } catch (error) {
+    res.status(400).send("Error :" + error);
+  }
+});
+
+module.exports = authRouter
