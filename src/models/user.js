@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      select: false,
       trim: true,
       validate(value) {
         if (!validator.isStrongPassword(value)) {
@@ -44,6 +45,10 @@ const userSchema = new mongoose.Schema(
     isSubscribed: {
       type: Boolean,
       default: false,
+    },
+    about:{
+      type:String,
+      default:""
     },
     profilePic: {
       type: String,

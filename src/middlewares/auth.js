@@ -6,18 +6,18 @@ const userAuth  =async(req, res, next) =>{
   try {
     const {token} = req.cookies
     if(!token) {
-      throw new Error("Please Login Again")
+      return res.status(401).send("Please login again!")
     }
 
     const decodedObj = await json.verify(token, "Roshidh123@")
     if(!decodedObj){
-      throw new Error("User session expired")
+      return res.status(401).send("Please login again!")
     }
     const {_id} = decodedObj
     const user =await User.findById(_id)
 
     if(!user){
-      throw new Error("Token is not valid")
+      return res.status(401).send("Please login again!")
     }
     req.user = user
     next()

@@ -4,7 +4,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
 const userRouter = express.Router();
-const USER_SAFE_DATA = ["firstName", "lastName", "skills", "profilePic"];
+const USER_SAFE_DATA = ["firstName", "lastName", "skills", "profilePic", "age", "gender", "about"];
 
 userRouter.get("/user/connection/received", userAuth, async (req, res) => {
   try {
@@ -59,6 +59,12 @@ userRouter.get("/user/feed", userAuth, async (req, res, next) => {
   try {
     const loggedInUser = req.user;
 
+    const page = parseInt(req.query.page);
+    let limit = parseInt(req.query.limit) || 10;
+    limit = limit > 50 ? 50 : limit;
+
+    const skip = (page - 1) * limit;
+
     const connectionRequests = await ConnectionRequest.find({
       $or: [{ senderId: loggedInUser._id }, { receiverId: loggedInUser._id }],
     });
@@ -75,7 +81,10 @@ userRouter.get("/user/feed", userAuth, async (req, res, next) => {
         { _id: { $nin: Array.from(hideUsersFromFeed) } },
         { _id: { $ne: loggedInUser._id } },
       ],
-    }).select(USER_SAFE_DATA);
+    })
+      .select(USER_SAFE_DATA)
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).send(users);
   } catch (error) {
