@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+console.log(process.env.JWT_SECRET_KEY)
 userSchema.methods.getJWT = async function () {
   const user = this;
   const token = await json.sign({ _id: user?._id }, process.env.JWT_SECRET_KEY, {
