@@ -3,7 +3,9 @@ const { userAuth } = require("../middlewares/auth");
 const requestRouter = express.Router();
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
-const mongoose = require("mongoose");
+const { dispatchEmail } = require("../utils/sendEmail");
+
+const USER_SAFE_DATA = ["firstName", "lastName"];
 
 requestRouter.post(
   "/request/send/:status/:userId",
@@ -42,7 +44,23 @@ requestRouter.post(
         receiverId,
         status,
       });
+      
       const data = await newConnectionRequest.save();
+
+      const newRequest = await ConnectionRequest.findOne({
+        $or: [
+          { senderId, receiverId },
+          { senderId: receiverId, receiverId: senderId },
+        ],
+      }).populate("receiverId", USER_SAFE_DATA);
+      const bodyContent = `You ${status} ${
+        status === "interested" ? "in" : ""
+      } ${
+        newRequest.receiverId.firstName + " " + newRequest.receiverId.lastName
+      }`;
+
+      await dispatchEmail(bodyContent);
+
       res.json({
         message: `${
           status === "ignored"
