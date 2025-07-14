@@ -1,16 +1,10 @@
-const AWS = require("aws-sdk");
-AWS.config.update({
-  region: "ap-south-1",
-  credentials: {
-    accessKeyId: `${process.env.AWS_ACCESS_KEY}`,
-    secretAccessKey: `${process.env.AWS_SECRET_KEY}`,
-  },
-});
+const { SendEmailCommand } = require("@aws-sdk/client-ses");
+const { sesClient } = require("./sesClient");
 
-const dispatchEmail = async (bodyContent) => {
-  const params = {
+const createSendEmailCommand = (toAddress, fromAddress, bodyContent) => {
+  return new SendEmailCommand({
     Destination: {
-      ToAddresses: ["mohammedroshidhdeveloper@gmail.com"],
+      ToAddresses: [toAddress],
     },
     Message: {
       Body: {
@@ -18,18 +12,38 @@ const dispatchEmail = async (bodyContent) => {
           Charset: "UTF-8",
           Data: `<h1>${bodyContent}</h1>`,
         },
+        Text: {
+          Charset: "UTF-8",
+          Data: "TEXT_FORMAT_BODY",
+        },
       },
       Subject: {
         Charset: "UTF-8",
         Data: "Support from Matchalorie",
       },
     },
-    Source: "support@matchalorie.life",
-  };
-
-  const sendEmailCommand = new AWS.SES({ apiVersion: "2010-12-01" })
-    .sendEmail(params)
-    .promise();
+    Source: fromAddress,
+    ReplyToAddresses: [],
+  });
 };
 
-module.exports = { dispatchEmail };
+const run = async (bodyContent) => {
+  const sendEmailCommand = createSendEmailCommand(
+    "mohammedroshidhdeveloper@gmail.com",
+    "support@matchalorie.life",
+    bodyContent
+  );
+
+  try {
+    return await sesClient.send(sendEmailCommand);
+  } catch (caught) {
+    if (caught instanceof Error && caught.name === "MessageRejected") {
+      /** @type { import('@aws-sdk/client-ses').MessageRejected} */
+      const messageRejectedError = caught;
+      return messageRejectedError;
+    }
+    throw caught;
+  }
+};
+
+module.exports = { run };

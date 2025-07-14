@@ -3,7 +3,7 @@ const { userAuth } = require("../middlewares/auth");
 const requestRouter = express.Router();
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
-const { dispatchEmail } = require("../utils/sendEmail");
+const {run} = require("../utils/sendEmail");
 
 const USER_SAFE_DATA = ["firstName", "lastName"];
 
@@ -59,7 +59,8 @@ requestRouter.post(
         newRequest.receiverId.firstName + " " + newRequest.receiverId.lastName
       }`;
 
-      await dispatchEmail(bodyContent);
+      const sentEmail = await run(bodyContent);
+      console.log(sentEmail)
 
       res.json({
         message: `${
