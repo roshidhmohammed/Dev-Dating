@@ -9,7 +9,7 @@ const userAuth  =async(req, res, next) =>{
       return res.status(401).send("Please login again!")
     }
 
-    const decodedObj = await json.verify(token, "Roshidh123@")
+    const decodedObj = await json.verify(token, `${process.env.JWT_SECRET_KEY}`)
     if(!decodedObj){
       return res.status(401).send("Please login again!")
     }
