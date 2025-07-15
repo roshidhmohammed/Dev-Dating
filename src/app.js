@@ -3,6 +3,8 @@ const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
 const app = express();
 const cors = require("cors")
+const path= require("path")
+const dotenv = require("dotenv")
 
 app.use(cors({
   origin:"http://localhost:5173",
@@ -12,8 +14,10 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-require("dotenv").config({
-  path:"src/config/.env"
+const ENV= process.env.NODE_ENV || "development"
+
+dotenv.config({
+  path: path.resolve(__dirname, `./config/.${process.env.NODE_ENV}.env`)
 })
 
 const authRouter = require("./routes/auth");
