@@ -58,9 +58,10 @@ requestRouter.post(
       } ${
         newRequest.receiverId.firstName + " " + newRequest.receiverId.lastName
       }`;
+      const subject = `You New Requests Sent from Matchalorie`
 
-      const sentEmail = await run(bodyContent);
-      console.log(sentEmail)
+      const sentEmail = await run(subject, bodyContent);
+
 
       res.json({
         message: `${
