@@ -54,7 +54,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     const isWebhookValid = validateWebhookSignature(
       JSON.stringify(req.body),
       webhookSignature,
-      "Roshidh@75111*"
+      process.env.RAZORPAY_WEBHOOK_SECRET
     );
 
     if (!isWebhookValid) {
