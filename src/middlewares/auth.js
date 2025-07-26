@@ -5,6 +5,7 @@ const User = require("../models/user")
 const userAuth  =async(req, res, next) =>{
   try {
     const {token} = req.cookies
+    // console.log("token received", token)
     if(!token) {
       return res.status(401).send("Please login again!")
     }
@@ -22,7 +23,7 @@ const userAuth  =async(req, res, next) =>{
     req.user = user
     next()
   } catch (error) {
-    res.status(400).send("Error:" + error.message)
+    res.status(401).send("Error:" + error.message)
   }
 }
 
